@@ -72,14 +72,18 @@
                     </div>
                 
                     <template x-if="interval.id">
-                        <form :action="'/intervals/' + interval.id" method="POST" 
-                              onsubmit="return confirm('هل أنت متأكد من حذف هذه الفترة بما فيها من مهام؟');" class="m-0">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 transition-all hover:bg-red-500/20">
-                                ❌ حذف الفترة
-                            </button>
-                        </form>
+                        <button type="button" 
+                                @click="if(confirm('هل أنت متأكد من حذف هذه الفترة بما فيها من مهام؟')) { 
+                                    let f = document.createElement('form');
+                                    f.method = 'POST';
+                                    f.action = '/intervals/' + interval.id;
+                                    f.innerHTML = '<input type=\'hidden\' name=\'_method\' value=\'DELETE\'><input type=\'hidden\' name=\'_token\' value=\'{{ csrf_token() }}\'>';
+                                    document.body.appendChild(f);
+                                    f.submit();
+                                }"
+                                class="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 transition-all hover:bg-red-500/20 m-0">
+                            ❌ حذف الفترة
+                        </button>
                     </template>
                 </div>
 
