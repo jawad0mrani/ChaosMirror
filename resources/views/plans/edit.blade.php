@@ -63,15 +63,20 @@
                 <input type="hidden" name="plan_data" x-bind:value="JSON.stringify(intervals)">
 
                 <!-- عنوان الخطة -->
-                <div class="flex justify-between items-center mb-4 border-b border-purple-500/30 pb-2">
-                    <h3 class="text-purple-300 font-bold text-xl" x-text="interval.title"></h3>
-                    
+                <div class="flex justify-between items-center mb-6 border-b border-slate-700/50 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold font-mono-code"
+                             :class="interval.is_new ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'"
+                             x-text="iIndex + 1"></div>
+                        <h3 class="text-lg font-bold text-slate-200" x-text="interval.is_new ? 'فترة جديدة مضافة' : 'فترة دراسية سابقة'"></h3>
+                    </div>
+                
                     <template x-if="!interval.is_new">
                         <form :action="'/intervals/' + interval.id" method="POST" 
-                              onsubmit="return confirm('هل أنت متأكد من حذف هذه الفترة بما فيها من مهام؟');">
+                              onsubmit="return confirm('هل أنت متأكد من حذف هذه الفترة بما فيها من مهام؟');" class="m-0">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-2 py-1 rounded border border-red-500/20">
+                            <button type="submit" class="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 transition-all hover:bg-red-500/20">
                                 ❌ حذف الفترة
                             </button>
                         </form>
