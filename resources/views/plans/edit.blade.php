@@ -71,7 +71,7 @@
                         <h3 class="text-lg font-bold text-slate-200" x-text="interval.is_new ? 'فترة جديدة مضافة' : 'فترة دراسية سابقة'"></h3>
                     </div>
                 
-                    <template x-if="!interval.is_new">
+                    <template x-if="interval.id">
                         <form :action="'/intervals/' + interval.id" method="POST" 
                               onsubmit="return confirm('هل أنت متأكد من حذف هذه الفترة بما فيها من مهام؟');" class="m-0">
                             @csrf
