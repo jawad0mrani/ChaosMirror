@@ -63,10 +63,19 @@
                 <input type="hidden" name="plan_data" x-bind:value="JSON.stringify(intervals)">
 
                 <!-- عنوان الخطة -->
-                <div class="glass-panel rounded-2xl p-6 border-t-4 border-purple-500 shadow-lg shadow-purple-900/20">
-                    <label class="block text-sm font-bold text-slate-300 mb-2">اسم المصفوفة</label>
-                    <input type="text" name="title" x-model="title" required
-                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all">
+                <div class="flex justify-between items-center mb-4 border-b border-purple-500/30 pb-2">
+                    <h3 class="text-purple-300 font-bold text-xl" x-text="interval.title"></h3>
+                    
+                    <template x-if="!interval.is_new">
+                        <form :action="'/intervals/' + interval.id" method="POST" 
+                              onsubmit="return confirm('هل أنت متأكد من حذف هذه الفترة بما فيها من مهام؟');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-2 py-1 rounded border border-red-500/20">
+                                ❌ حذف الفترة
+                            </button>
+                        </form>
+                    </template>
                 </div>
 
                 <!-- الفترات والمهام -->
