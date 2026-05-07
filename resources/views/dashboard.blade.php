@@ -469,6 +469,16 @@
                                 <div class="pt-24 pb-4"></div>
                             </div>
 
+                            <form action="{{ route('plans.destroy', $activePlan->id) }}" method="POST" 
+                                  onsubmit="return confirm('تحذير: سيتم مسح المصفوفة وكل فتراتها ومهامها.. هل أنت متأكد؟');" 
+                                  class="mb-4">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="w-full text-red-500 hover:text-red-400 font-bold py-2 border border-red-500/30 rounded-lg transition-all hover:bg-red-500/10">
+                                    🗑️ حذف هذه المصفوفة نهائياً
+                                </button>
+                            </form>
+                        
                             <a href="{{ route('plans.edit', $activePlan->id) }}" class="mt-4 w-full py-3 border border-slate-700 border-dashed rounded-xl flex items-center justify-center gap-2 text-slate-400 hover:text-purple-400 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all duration-300 font-mono-code text-sm group">
                                 <span>Edit & Add Data</span>
                                 <svg class="w-4 h-4 transform group-hover:rotate-90 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
