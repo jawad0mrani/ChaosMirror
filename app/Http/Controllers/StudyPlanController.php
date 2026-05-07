@@ -136,4 +136,35 @@ class StudyPlanController extends Controller
 
         return redirect()->route('dashboard')->with('success', 'تم تحديث المصفوفة بنجاح!');
     }
+
+    // 1. تدمير المصفوفة (الخطة) بالكامل
+    public function destroyPlan(\App\Models\StudyPlan $plan)
+    {
+        // حماية أمنية: منع أي مستخدم من حذف مصفوفة غيره
+        if ($plan->user_id !== auth()->id()) {
+            abort(403, 'توقف! غير مصرح لك بتدمير مصفوفات الآخرين.');
+        }
+
+        // الحذف (سيقوم الـ Cascade في قاعدة البيانات بحذف الفترات والمهام تلقائياً)
+        $plan->delete();
+
+        return redirect()->route('dashboard')->with('success', 'تم نسف المصفوفة بالكامل بنجاح!');
+    }
+
+    // 2. حذف فترة محددة (Interval) من داخل المصفوفة
+    public function destroyInterval(\App\Models\PlanInterval $interval)
+    {
+        // جلب الخطة الأب لنتأكد من هوية المالك
+        $plan = \App\Models\StudyPlan::findOrFail($interval->study_plan_id);
+        
+        // حماية أمنية
+        if ($plan->user_id !== auth()->id()) {
+            abort(403, 'غير مصرح لك بحذف هذه الفترة.');
+        }
+
+        $interval->delete(); // سيتم حذف المهام التابعة لهذه الفترة أيضاً بفضل الـ Cascade (إذا كنت ضايفه لجدول المهام)
+
+        return back()->with('success', 'تم إزالة الفترة بنجاح.');
+    }
+    
 }
