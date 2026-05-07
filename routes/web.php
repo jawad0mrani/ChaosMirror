@@ -84,4 +84,37 @@ Route::get('/setup-chaos-db', function () {
 Route::delete('/plans/{plan}', [App\Http\Controllers\StudyPlanController::class, 'destroyPlan'])->name('plans.destroy');
 Route::delete('/intervals/{interval}', [App\Http\Controllers\StudyPlanController::class, 'destroyInterval'])->name('intervals.destroy');
 
+Route::post('/git-deploy-secret-link', function () {
+    $signature = request()->header('X-Hub-Signature-256');
+    $payload = request()->getContent();
+    $secret = env('GITHUB_WEBHOOK_SECRET');
+
+    if ($signature !== 'sha256=' . hash_hmac('sha256', $payload, $secret)) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    // 1. المسار الصحيح للمشروع
+    $projectPath = '/home/reemad/www/chaos-mind'; 
+
+    // 2. الأمر المحدث (مع الأقواس) لضمان الدخول للمسار وسحب الكود بشكل سليم واصطياد أي خطأ
+    $command = "(cd {$projectPath} && GIT_SSH_COMMAND='ssh -i /home/reemad/.ssh/id_ed25519 -o StrictHostKeyChecking=no' git pull origin main) 2>&1";
+    
+    // استخدام exec بدل shell_exec بيعطينا مصفوفة بكل الأخطاء مع كود الحالة
+    exec($command, $outputArray, $statusCode);
+
+    // 3. تنظيف الكاش تلقائياً في حال النجاح
+    if ($statusCode === 0) {
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+    }
+
+    // 4. الرد التفصيلي اللي بيظهر بـ غيت هاب
+    return response()->json([
+        'success' => true,
+        'status_code' => $statusCode, // 0 يعني نجاح، أي رقم تاني يعني إيرور
+        'output' => $outputArray, 
+        'executed_command' => $command
+    ]);
+});
+
 require __DIR__.'/auth.php';
