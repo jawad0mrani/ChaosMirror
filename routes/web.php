@@ -80,4 +80,8 @@ Route::get('/setup-chaos-db', function () {
     return 'تم بناء قاعدة بيانات الفوضى بنجاح! اذهب الآن إلى /chaos-center';
 });
 
+// مسارات تدمير المصفوفات والفترات
+Route::delete('/plans/{plan}', [App\Http\Controllers\StudyPlanController::class, 'destroyPlan'])->name('plans.destroy');
+Route::delete('/intervals/{interval}', [App\Http\Controllers\StudyPlanController::class, 'destroyInterval'])->name('intervals.destroy');
+
 require __DIR__.'/auth.php';
