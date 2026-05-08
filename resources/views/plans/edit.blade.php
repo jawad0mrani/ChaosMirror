@@ -25,11 +25,9 @@
                 <a href="{{ route('dashboard') }}" class="text-slate-400 hover:text-white transition-colors text-sm border-b border-slate-700 hover:border-white pb-1">إلغاء والعودة</a>
             </div>
 
-            <!-- الفورم مع حقن البيانات الموجودة مسبقاً -->
             <form action="{{ route('plans.update', $plan->id) }}" method="POST" 
                   x-data="{
                       title: '{{ $plan->title }}',
-                      // حقن الفترات والمهام من قاعدة البيانات إلى الجافاسكريبت
                       intervals: {{ Illuminate\Support\Js::from($plan->intervals->map(function($interval) {
                           return [
                               'id' => $interval->id,
@@ -59,52 +57,47 @@
                 
                 @csrf
                 @method('PUT')
-                <!-- حقل مخفي يجمع كل البيانات كـ JSON ويرسلها للـ Controller دفعة واحدة -->
                 <input type="hidden" name="plan_data" x-bind:value="JSON.stringify(intervals)">
+                <input type="hidden" name="title" x-bind:value="title">
 
-                <!-- عنوان الخطة -->
-                <div class="flex justify-between items-center mb-6 border-b border-slate-700/50 pb-3">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold font-mono-code"
-                             :class="interval.is_new ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'"
-                             x-text="iIndex + 1"></div>
-                        <h3 class="text-lg font-bold text-slate-200" x-text="interval.is_new ? 'فترة جديدة مضافة' : 'فترة دراسية سابقة'"></h3>
-                    </div>
-                
-                    <template x-if="interval.id">
-                        <button type="button" 
-                                @click="if(confirm('هل أنت متأكد من حذف هذه الفترة بما فيها من مهام؟')) { 
-                                    let f = document.createElement('form');
-                                    f.method = 'POST';
-                                    f.action = '/intervals/' + interval.id;
-                                    f.innerHTML = '<input type=\'hidden\' name=\'_method\' value=\'DELETE\'><input type=\'hidden\' name=\'_token\' value=\'{{ csrf_token() }}\'>';
-                                    document.body.appendChild(f);
-                                    f.submit();
-                                }"
-                                class="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 transition-all hover:bg-red-500/20 m-0">
-                            ❌ حذف الفترة
-                        </button>
-                    </template>
+                <div class="glass-panel rounded-2xl p-6 border border-slate-700/50">
+                    <label class="block text-sm font-bold text-slate-400 mb-2">اسم المصفوفة (الخطة)</label>
+                    <input type="text" x-model="title" required 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all">
                 </div>
 
-                <!-- الفترات والمهام -->
                 <div class="space-y-6">
                     <template x-for="(interval, iIndex) in intervals" :key="interval.id">
                         <div class="glass-panel rounded-2xl p-6 border border-slate-700/50 relative transition-all"
                              :class="interval.is_new ? 'border-cyan-500/50 bg-cyan-900/5' : ''">
                             
-                            <div class="flex items-center gap-3 mb-6">
-                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold font-mono-code"
-                                     :class="interval.is_new ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'"
-                                     x-text="iIndex + 1"></div>
-                                <h3 class="text-lg font-bold text-slate-200" x-text="interval.is_new ? 'فترة جديدة مضافة' : 'فترة دراسية سابقة'"></h3>
+                            <div class="flex justify-between items-center mb-6 border-b border-slate-700/50 pb-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold font-mono-code"
+                                         :class="interval.is_new ? 'bg-cyan-500/20 text-cyan-400' : 'bg-purple-500/20 text-purple-400'"
+                                         x-text="iIndex + 1"></div>
+                                    <h3 class="text-lg font-bold text-slate-200" x-text="interval.is_new ? 'فترة جديدة مضافة' : 'فترة دراسية سابقة'"></h3>
+                                </div>
+                            
+                                <template x-if="!interval.is_new">
+                                    <button type="button" 
+                                            @click="if(confirm('هل أنت متأكد من حذف هذه الفترة بما فيها من مهام؟')) { 
+                                                let f = document.createElement('form');
+                                                f.method = 'POST';
+                                                f.action = '/intervals/' + interval.id;
+                                                f.innerHTML = '<input type=\'hidden\' name=\'_method\' value=\'DELETE\'><input type=\'hidden\' name=\'_token\' value=\'{{ csrf_token() }}\'>';
+                                                document.body.appendChild(f);
+                                                f.submit();
+                                            }"
+                                            class="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 transition-all hover:bg-red-500/20 m-0">
+                                        ❌ حذف الفترة
+                                    </button>
+                                </template>
                             </div>
 
                             <div class="space-y-3 pl-11">
                                 <template x-for="(task, tIndex) in interval.tasks" :key="task.id">
                                     <div class="flex items-center gap-3">
-                                        
-                                        <!-- إذا كانت المهمة منجزة (للقراءة فقط) -->
                                         <template x-if="task.is_completed">
                                             <div class="flex-1 flex items-center gap-3 bg-slate-900/50 border border-slate-800 rounded-lg px-4 py-2.5 opacity-60">
                                                 <svg class="w-5 h-5 text-cyan-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
@@ -113,7 +106,6 @@
                                             </div>
                                         </template>
 
-                                        <!-- إذا لم تكن منجزة (قابلة للتعديل) -->
                                         <template x-if="!task.is_completed">
                                             <div class="flex-1 flex items-center gap-3">
                                                 <input type="text" x-model="task.name" required placeholder="اسم المهمة أو الدرس" 
@@ -125,7 +117,6 @@
                                                 </button>
                                             </div>
                                         </template>
-
                                     </div>
                                 </template>
 
